@@ -4,38 +4,43 @@ provider "azurerm"{
 }
 
 resource "azurerm_resource_group" "tf_terraformrg"{
-    name = "tf_terraformrgnew"
-    location = "East US"
+    name = "tf_rg"
+    location = "West US"
 }
 
 # # Create an App Service Plan with Linux
 resource "azurerm_service_plan" "terraformplan" {
-  name                = "${azurerm_resource_group.tf_terraformrg}-terraformplan"
+  name                = "web-12345"
   location            = "${azurerm_resource_group.tf_terraformrg.location}"
   resource_group_name = "${azurerm_resource_group.tf_terraformrg.name}"
   os_type             = "Linux"
-  sku_name            = "F1"
+  sku_name            = "B1"
+
+  
 }
 
 
 
 # # Create an Azure Web App for Containers in that App Service Plan
 resource "azurerm_linux_web_app" "newterraformapp" {
-  name                = "${azurerm_resource_group.tf_terraformrg.name}-newterraformapp"
+  name                = "newterraformapp1234"
   location            = "${azurerm_resource_group.tf_terraformrg.location}"
   resource_group_name = "${azurerm_resource_group.tf_terraformrg.name}"
-  service_plan_id = "${azurerm_service_plan.terraformplan.id}"
-
- 
+  service_plan_id     = "${azurerm_service_plan.terraformplan.id}"
+  https_only          = true
 
   site_config {
-    linux_fx_version = "nagashreeshetty/newpythonwebapp"
-    always_on        = "true"
+    application_stack{
+      python_version = 3.8
+   }
+  }
+  app_settings = {
+    "SCM_DO_BUILD_DURING_DEPLOYMENT" = "1"
   }
 
-  identity {
-    type = "SystemAssigned"
-  }
+  # identity {
+  #   # type = "SystemAssigned"
+  # }
 }
 
 #  Deploy code from a public GitHub repo
