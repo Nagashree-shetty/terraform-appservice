@@ -53,3 +53,32 @@ resource "azurerm_app_service_source_control" "sourcecontrol" {
 }
 
 
+resource "azurerm_monitor_action_group" "actiongrp" {
+  name                = "monitor-actiongroupTF"
+  resource_group_name = azurerm_resource_group.tf_terraformrg.name
+  short_name          = "appactgrp"
+
+  email_receiver {
+    email_address        = "shreeshetty1319@gmail.com"
+    name = "sendalerttoadmin"
+  }
+}
+
+resource "azurerm_monitor_metric_alert" "monitor-app-service" {
+  name                = "app-metricalert"
+  resource_group_name = azurerm_resource_group.tf_terraformrg.name
+  scopes              = [azurerm_linux_web_app.newterraformapp.id]
+  
+  criteria {
+    metric_namespace = "Microsoft.Web/sites"
+    metric_name      = "Requests"
+    aggregation      = "Total"
+    operator         = "GreaterThan"
+    threshold        = 1
+
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.actiongrp.id
+  }
+}
